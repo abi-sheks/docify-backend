@@ -2,14 +2,13 @@ from django.db import models
 from django.utils.text import slugify
 from django.core.validators import validate_email, validate_slug
 import uuid
-from docsapp.models.tag import Tag
 from django.contrib.auth.models import User 
 
 
 class Profile(models.Model):
     user= models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     id =models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tags = models.ManyToManyField(Tag, related_name="users")
+    tags = models.ManyToManyField('docsapp.Tag', related_name="users")
     slug = models.SlugField(default='', null = False, validators=[validate_slug])
 
     def __str__(self):

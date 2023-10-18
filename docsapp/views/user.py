@@ -11,8 +11,6 @@ class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAP
     permissions = [IsAuthenticated]
     queryset = Profile.objects.all()
     serializer_class = UserSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = []
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -21,13 +19,13 @@ class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAP
         return self.post(request, *args, **kwargs)
 class UserByTag(generics.ListCreateAPIView):
     permissions = [IsAuthenticated]
+    serializer_class = UserSerializer
     def get_queryset(self):
         tag = self.kwargs['tag']
         try:
             return Profile.objects.filter(read_tags__name=tag, write_tags__name=tag)
         except Profile.DoesNotExist:
             raise Http404
-    
 class UserDetail(APIView):
     permissions = [IsAuthenticated]
     def get_user(self, slug):
@@ -43,7 +41,8 @@ class UserDetail(APIView):
     
     def put(self, request, slug, format=None):
         user = self.get_user(slug)
-        srl = UserSerializer(user)
+        
+        srl = UserSerializer(user, data=request.data)
         if srl.is_valid():
             srl.save()
             return Response(srl.data)

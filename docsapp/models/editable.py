@@ -4,18 +4,19 @@ from django.core.validators import validate_slug
 import uuid
 from docsapp.models.user import Profile
 from docsapp.models.tag import Tag
+import datetime
 
 
 
 class Editable(models.Model):
     title = models.CharField(max_length=30, blank=False)
-    content = models.CharField(max_length=2000, blank=False)
+    content = models.BinaryField(editable=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    creation_time = models.TimeField()
-    restricted = models.BooleanField(default=True)
-    owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    read_tags = models.ManyToManyField(Tag, related_name="readable")
-    write_tags = models.ManyToManyField(Tag, related_name="writeable")
+    # creation_time = models.DateTimeField(auto_now_add=True)
+    # restricted = models.BooleanField(default=True)
+    creator = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
+    read_tags = models.ManyToManyField(Tag, related_name="readable", blank=True)
+    write_tags = models.ManyToManyField(Tag, related_name="writeable", blank=True)
     slug = models.SlugField(default='', null = False, validators=[validate_slug])
 
     @property
@@ -26,11 +27,14 @@ class Editable(models.Model):
         return [write_tag.name for write_tag in self.write_tags.all()]
     @property
     def owner_indexing(self):
-        return self.owner.user.username
+        return self.creator.user.username
+    @property
+    def get_content(self):
+        return self.content.decode('ascii')
 
     def __str__(self):
         return self.title
     
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
-        super(Editable, self).save(*args,)
+        super(Editable, self).save(*args, **kwargs)

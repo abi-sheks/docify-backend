@@ -7,7 +7,7 @@ from docsapp.models.user import Profile
 
 @registry.register_document
 class EditableDocument(Document):
-    owner = fields.TextField(attr='owner_indexing')
+    creator = fields.TextField(attr='owner_indexing')
     read_tags = fields.TextField(attr='read_tags_indexing')
     write_tags = fields.TextField(attr='write_tags_indexing')
     comments = fields.NestedField(properties = {
@@ -22,9 +22,9 @@ class EditableDocument(Document):
 
         fields = [
             'title',
-            'content',
-            'creation_time',
-            'restricted',
+            # 'content',
+            # 'creation_time',
+            # 'restricted',
             'id',
             'slug',
         ]
