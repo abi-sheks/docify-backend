@@ -3,7 +3,7 @@ from docsapp.views.editable import EditableDocumentView, EditableCreationView, E
 from docsapp.views.auth import OAuthLogin
 from docsapp.views.user import UserList, UserDetail
 from docsapp.views.tag import TagDetail, TagList, TagsByMember, IndividualTagReadOnly
-from docsapp.views.auth import OAuthLogin
+from docsapp.views.auth import OAuthLogin, OAuthRedirect, LogoutView
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import yconsumer
@@ -29,6 +29,8 @@ urlpatterns = [
     path('tags/', csrf_exempt(TagList.as_view()), name='tags'),
     path('tags/<slug:slug>', csrf_exempt(TagDetail.as_view())),
     path('auth/', OAuthLogin.as_view(), name='auth'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('oauth/', OAuthRedirect.as_view(), name='oauth'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

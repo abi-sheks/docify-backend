@@ -19,6 +19,6 @@ from docsapp import urls as docsapp_urls
 from django.urls import path, include, re_path
 
 urlpatterns = [
-    re_path(r'search/', include(docsapp_urls)),
+    re_path(r'api/', include(docsapp_urls)),
     path('admin/', admin.site.urls),
 ]
