@@ -8,4 +8,4 @@ class TagSerializer(serializers.ModelSerializer):
     users = serializers.SlugRelatedField(many = True, slug_field = 'slug', queryset=Profile.objects.all())
     class Meta:
         model = Tag
-        fields = ['name', 'users', 'creator', 'slug']
+        fields = ['name', 'users', 'creator', 'slug', 'id']

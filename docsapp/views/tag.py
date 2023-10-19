@@ -37,7 +37,7 @@ class IndividualTagReadOnly(ReadOnlyModelViewSet):
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     # permissions = [IsAuthenticated]
     # permissions = [IsCreatorPermission]
-    lookup_field = 'slug'
+    lookup_field = 'id'
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 

@@ -35,6 +35,6 @@ class EditableCreationView(ListCreateAPIView):
 
 class EditableUpdationView(RetrieveUpdateDestroyAPIView):
     # permissions = [IsCreatorPermission]
-    lookup_field = 'slug'
+    lookup_field = 'id'
     queryset = Editable.objects.all()
     serializer_class = EditableSerializer
