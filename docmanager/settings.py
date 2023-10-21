@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 AUTH_URI = "https://channeli.in/oauth/authorise/"
-CHANNELI_CLIENT_ID = str(os.getenv('CHANNELI_CLIENT_ID'))
+CHANNELI_CLIENT_ID = '0zUuLO19whKUhnNrPMzowqdlTqIzeC1MmqBvNt10'
 CHANNELI_CLIENT_SECRET = str(os.getenv('CHANNELI_CLIENT_SECRET'))
-REDIRECT_URI='http://127.0.0.1:8000/api/oauth'
+REDIRECT_URI='http://127.0.0.1:8000/api/oauth/'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

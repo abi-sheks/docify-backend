@@ -8,20 +8,14 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import yconsumer
 
-doc_list = EditableDocumentView.as_view({
-    'get' : 'list',
-})
-doc_detail = EditableDocumentView.as_view({
-    'get' : 'retrieve',
-    'put' : 'update',
-})
 tag_detail_read = IndividualTagReadOnly.as_view({
     'get' : 'retrieve',
 })
 
 
 urlpatterns = [
-    path('docs/', EditableCreationView.as_view(), name='doc_list'),
+    path('docs/', EditableCreationView.as_view(), name='docs'),
+    path('docs/search', EditableDocumentView.as_view({'get' : 'list'}), name='docs'),
     path('docs/create/', csrf_exempt(EditableCreationView.as_view()), name = 'doc_create'),
     path('docs/<slug:id>', csrf_exempt(EditableUpdationView.as_view()), name='doc_detail'),
     path('users/', UserList.as_view(), name='users'),

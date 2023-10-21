@@ -15,30 +15,29 @@ class OAuthLogin(APIView):
     permission_classes = [AllowAny]
     authentication_Classes =[SessionAuthentication]
     def get(self, request, *args, **kwargs):
+        print(f"This is the {CHANNELI_CLIENT_ID}")
         backend_uri = f"{AUTH_URI}?client_id={CHANNELI_CLIENT_ID}&redirect_uri={REDIRECT_URI}"
         return redirect(backend_uri)
 
 class OAuthRedirect(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes=[SessionAuthentication]
     def get(self, request, *args, **kwargs):
         auth_code = request.query_params.get('code')
-        client_id = CHANNELI_CLIENT_ID
-        client_secret = CHANNELI_CLIENT_SECRET
-        redirect_uri = REDIRECT_URI
         token_data = requests.post('https://channeli.in/open_auth/token/', data={
-            'client_id' : client_id,
-            'client_secret' : client_secret,
+            'client_id' : CHANNELI_CLIENT_ID,
+            'client_secret' : CHANNELI_CLIENT_SECRET,
             'grant_type' : 'authorization_code',
-            'redirect_uri' : redirect_uri,
+            'redirect_uri' : REDIRECT_URI,
             'code' : auth_code
         }).json()
         access_token = token_data['access_token']
-        user_data_json = requests.get('https://channeli.in/open_auth/get_user_data/' , headers={
+        user_data = requests.get('https://channeli.in/open_auth/get_user_data/' , headers={
             'Authorization' : f"Bearer {access_token}"
-        }).json()
-        user_data = json.loads(user_data_json)
+        })
         user, created = User.objects.get_or_create(
-            username=user_data['username'],
-            email = user_data['email'],
+            username=user_data['person']['full_name'],
+            email = user_data['contact_information']['email_address'],
         )
         try: 
             login(request, user)

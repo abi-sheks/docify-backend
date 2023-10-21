@@ -10,24 +10,26 @@ class EditableDocumentSerializer(DocumentSerializer):
     class Meta:
         document = EditableDocument
         fields = (
-            'title',
-            'content',
-            'id',
+            # 'content',
             # 'creation_time',
-            'owner',
+            # 'owner',
+            # 'comments',
+            'title',
+            'id',
             'read_tags',
             'write_tags',
-            'comments',
             'slug',
         )
 
 class EditableSerializer(serializers.ModelSerializer):
     read_tags = serializers.SlugRelatedField(many=True, required = False, slug_field='name', queryset=Tag.objects.all())
     write_tags = serializers.SlugRelatedField(many=True, required = False, slug_field='name', queryset = Tag.objects.all())
-    creator = serializers.SlugRelatedField(required = False, slug_field='slug', queryset = Profile.objects.all())
+    # creator = serializers.SlugRelatedField(required = False, slug_field='slug', queryset = Profile.objects.all())
     # comments = serializers.StringRelatedField(many=True, required = False)
     class Meta:
         model = Editable
-        fields = ['title', 'id', 'read_tags', 'write_tags','slug', 'creator']
+        fields = ['title', 'id', 'read_tags', 'write_tags','slug', 
+                #   'creator'
+                  ]
 
 
