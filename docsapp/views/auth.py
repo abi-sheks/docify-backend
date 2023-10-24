@@ -15,9 +15,8 @@ class OAuthLogin(APIView):
     permission_classes = [AllowAny]
     authentication_Classes =[SessionAuthentication]
     def get(self, request, *args, **kwargs):
-        print(f"This is the {CHANNELI_CLIENT_ID}")
-        backend_uri = f"{AUTH_URI}?client_id={CHANNELI_CLIENT_ID}&redirect_uri={REDIRECT_URI}"
-        return redirect(backend_uri)
+        channeli_uri = f"{AUTH_URI}?client_id={CHANNELI_CLIENT_ID}&redirect_uri={REDIRECT_URI}"
+        return redirect(channeli_uri)
 
 class OAuthRedirect(APIView):
     permission_classes = [AllowAny]
@@ -30,11 +29,12 @@ class OAuthRedirect(APIView):
             'grant_type' : 'authorization_code',
             'redirect_uri' : REDIRECT_URI,
             'code' : auth_code
-        }).json()
+        })
         access_token = token_data['access_token']
         user_data = requests.get('https://channeli.in/open_auth/get_user_data/' , headers={
             'Authorization' : f"Bearer {access_token}"
         })
+        print(user_data)
         user, created = User.objects.get_or_create(
             username=user_data['person']['full_name'],
             email = user_data['contact_information']['email_address'],
@@ -51,6 +51,8 @@ class LogoutView(APIView):
     def get(self, request, *args, **kwargs):
         logout(request)
         return Response(data={"message" : "logged out successfully"}, status=status.HTTP_200_OK)
+
+
 
 
 
