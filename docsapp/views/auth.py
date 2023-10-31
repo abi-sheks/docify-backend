@@ -5,22 +5,66 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 import requests
 import json
+from django import http
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
+from docsapp.serializers.authuser import AuthUserSerializer
 
 
-class OAuthLogin(APIView):
-    permission_classes = [AllowAny]
-    authentication_Classes =[SessionAuthentication]
-    def get(self, request, *args, **kwargs):
-        channeli_uri = f"{AUTH_URI}?client_id={CHANNELI_CLIENT_ID}&redirect_uri={REDIRECT_URI}"
-        return redirect(channeli_uri)
+class SansCSRFSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request, *args, **kwargs):
+        return;
+
+#super simple view
+class RegisterView(APIView):
+    permission_classes = [AllowAny, ]
+    authentication_classes = [SansCSRFSessionAuthentication, ]
+
+    def get(self, request):
+        return Response(data={'msg' : 'OK'}, status=status.HTTP_200_OK)
+    
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        print(repr(AuthUserSerializer))
+        user_serializer = AuthUserSerializer(data=request.data)
+        print(user_serializer.is_valid())
+        if user_serializer.is_valid():
+            user_serializer.save()
+            username = user_serializer.data['username']
+            email = user_serializer.data['email']
+            password = user_serializer.data['password']
+            return Response(data={'username' : username, 'email' : email}, status=status.HTTP_200_OK)
+        else:
+            return Response(data={'error' : 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class LoginView(APIView):
+    permission_classes = [AllowAny, ]
+    authentication_classes = [SansCSRFSessionAuthentication, ]
+
+    def get(self, request):
+        return Response({'msg' : 'OK'})
+    
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        user_srl = AuthUserSerializer(data=request.data)
+        if user_srl.is_valid():
+            user = None
+            if not user:
+                user = authenticate(username=user_srl.data['username'], password=user_srl.data['password'])
+                print(user)
+            try:
+                login(request, user=user)
+                return Response(data={'msg' : 'Logged in','username' : user_srl.data['username'], 'email' :  user_srl.data['email']}, status=status.HTTP_200_OK)
+            except:
+                return Response(data={'error' : 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(data={'error' : 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 class OAuthRedirect(APIView):
-    permission_classes = [AllowAny]
-    # authentication_classes=[SessionAuthentication]
+    permission_classes = []
+    authentication_classes=[]
     def get(self, request, *args, **kwargs):
         auth_code = request.query_params.get('code')
         print(auth_code)
@@ -37,8 +81,8 @@ class OAuthRedirect(APIView):
         })
         print(user_data)
         user, created = User.objects.get_or_create(
-            username=user_data['person']['full_name'],
-            email = user_data['contact_information']['email_address'],
+            username=request.body.username,
+            email = request.body.email,
         )
         try: 
             login(request, user)
@@ -47,19 +91,13 @@ class OAuthRedirect(APIView):
             return Response(data={"error" : "Auth failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [SansCSRFSessionAuthentication, ]
     def get(self, request, *args, **kwargs):
         logout(request)
         return Response(data={"message" : "logged out successfully"}, status=status.HTTP_200_OK)
-    
 
 
-
-#  curl -H 'Content-Type: application/json' \
-#       -d '{ "client_id":"0zUuLO19whKUhnNrPMzowqdlTqIzeC1MmqBvNt10","client_secret":"lIsN5DhvRQtiwQh9VXOKjWPdJIr0UYzGhQxVcUsWdd4GWsB6rVc4oOEtd8QajbD7VFw1LkGtmz7DPwVbwQAXa03Uj80BVitdC4QVSxToLjRa3jk6IFWuThyUuxZ45xw8", "grant_type": "authorization_code", "redirect_uri" : "http://127.0.0.1:8000/api/oauth/", 'code' : ""}' \
-#       -X POST \
-#       https://channeli.in/open_auth/token/
 
 
 

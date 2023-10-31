@@ -15,7 +15,6 @@ class EditableConsumer(YjsConsumer):
     async def make_ydoc(self) -> Y.YDoc:
         doc = Y.YDoc()
         init_state = await database_sync_to_async(self.fetch_doc)()
-        print(f"The init state is {init_state}")
         if init_state != b'':
             # init_update = Y.encode_state_as_update(doc, init_state_vec)
             # print(f"The init update is {init_update}")
@@ -29,7 +28,6 @@ class EditableConsumer(YjsConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         await super(EditableConsumer, self).receive(text_data, bytes_data)
-        print(f"Current state is {Y.encode_state_as_update(self.ydoc)}")
         #Bad solution?
         curr_db_state = await database_sync_to_async(self.fetch_doc)()
         if curr_db_state != Y.encode_state_as_update(self.ydoc):
@@ -40,8 +38,6 @@ class EditableConsumer(YjsConsumer):
         update = Y.encode_state_as_update(self.ydoc)
         await database_sync_to_async(self.update_doc)(update)
         await self.group_send_message(create_update_message(update))
-        print(f"The update being applied to db is {Y.encode_state_as_update(self.ydoc)}")
-        print("Happening on disconnect")
         await super().disconnect(code)
 
     def on_update_event(self, event):

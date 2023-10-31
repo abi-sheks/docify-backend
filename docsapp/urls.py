@@ -1,9 +1,8 @@
 from django.urls import path, re_path, include
 from docsapp.views.editable import EditableDocumentView, EditableCreationView, EditableUpdationView
-from docsapp.views.auth import OAuthLogin
 from docsapp.views.user import UserList, UserDetail
 from docsapp.views.tag import TagDetail, TagList, TagsByMember, IndividualTagReadOnly
-from docsapp.views.auth import OAuthLogin, OAuthRedirect, LogoutView
+from docsapp.views.auth import RegisterView, LoginView, OAuthRedirect, LogoutView
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import yconsumer
@@ -22,9 +21,10 @@ urlpatterns = [
     path('users/<slug:slug>', UserDetail.as_view(), name='user'),
     path('tags/', csrf_exempt(TagList.as_view()), name='tags'),
     path('tags/<slug:id>', csrf_exempt(TagDetail.as_view())),
-    path('auth/', OAuthLogin.as_view(), name='auth'),
-    path('logout/', LogoutView.as_view(), name='logout'),
-    path('oauth/', OAuthRedirect.as_view(), name='oauth'),
+    path('auth/login/', csrf_exempt(LoginView.as_view()), name='login'),
+    path('auth/register/', csrf_exempt(RegisterView.as_view()), name='register'),
+    path('logout/', csrf_exempt(LogoutView.as_view()), name='logout'),
+    # path('token/redirect/', OAuthRedirect.as_view(), name='oauth'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
