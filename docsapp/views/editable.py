@@ -1,12 +1,15 @@
 from django_elasticsearch_dsl_drf.viewsets import BaseDocumentViewSet
 from django_elasticsearch_dsl_drf.filter_backends import SearchFilterBackend, FilteringFilterBackend, OrderingFilterBackend
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from django_elasticsearch_dsl_drf.constants import (
     LOOKUP_FILTER_PREFIX,
     LOOKUP_QUERY_CONTAINS,
 )
 from docsapp.serializers.editable import EditableDocumentSerializer, EditableSerializer
-from rest_framework.mixins import CreateModelMixin
+from rest_framework import mixins
+from rest_framework import generics
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -14,6 +17,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from django.contrib.auth.models import User
 from docsapp.models.user import Profile
 from docsapp.models.editable import Editable
+from docsapp.models.tag import Tag
 from docsapp.documents.editable import EditableDocument
 from docsapp.serializers.editable import EditableDocumentSerializer
 from docsapp.permissions import IsCreatorPermission
@@ -22,7 +26,8 @@ from docsapp.permissions import IsCreatorPermission
 
 
 class EditableDocumentView(BaseDocumentViewSet):
-    # permissions = [IsAuthenticated]
+    permission_classes=[IsAuthenticated]
+    authentication_classes=[TokenAuthentication]
     document = EditableDocument
     serializer_class = EditableDocumentSerializer
     lookup_field = 'id'
@@ -46,11 +51,28 @@ class EditableDocumentView(BaseDocumentViewSet):
         'slug' : 'slug.raw',
     }
 class EditableCreationView(ListCreateAPIView):
+    permission_classes=[IsAuthenticated]
+    authentication_classes=[TokenAuthentication]
     serializer_class = EditableSerializer
-    queryset = Editable.objects.all()
+    # queryset = Editable.objects.all()
+    def get_queryset(self):
+        user = self.request.user
+        # #can just fetch read tags, as by mechanism, write tags are also read tags
+        user_docs = Editable.objects.filter(read_tags__users__user=user).distinct()
+        for doc in user_docs:
+            print(doc)
+        # user_tags = Tag.objects.filter(users__user=user)
+        # user_docs = []
+        # for tag in user_tags:
+        #     user_docs.append(Editable.objects.filter(read_tags__name=tag.name))
+        return user_docs
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
+    
 class EditableUpdationView(RetrieveUpdateDestroyAPIView):
-    # permissions = [IsCreatorPermission]
+    permission_classes=[IsAuthenticated]
+    authentication_classes=[TokenAuthentication]
     lookup_field = 'id'
     queryset = Editable.objects.all()
     serializer_class = EditableSerializer

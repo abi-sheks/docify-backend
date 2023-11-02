@@ -2,7 +2,8 @@ from docmanager.settings import CHANNELI_CLIENT_ID, CHANNELI_CLIENT_SECRET, REDI
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 import requests
 import json
 from django import http
@@ -13,14 +14,11 @@ from django.contrib.auth.models import User, AnonymousUser
 from docsapp.serializers.authuser import AuthUserSerializer
 
 
-class SansCSRFSessionAuthentication(SessionAuthentication):
-    def enforce_csrf(self, request, *args, **kwargs):
-        return;
 
 #super simple view
 class RegisterView(APIView):
     permission_classes = [AllowAny, ]
-    authentication_classes = [SansCSRFSessionAuthentication, ]
+    authentication_classes = [TokenAuthentication, ]
 
     def get(self, request):
         return Response(data={'msg' : 'OK'}, status=status.HTTP_200_OK)
@@ -41,7 +39,7 @@ class RegisterView(APIView):
         
 class LoginView(APIView):
     permission_classes = [AllowAny, ]
-    authentication_classes = [SansCSRFSessionAuthentication, ]
+    authentication_classes = [TokenAuthentication, ]
 
     def get(self, request):
         return Response({'msg' : 'OK'})
@@ -54,10 +52,10 @@ class LoginView(APIView):
             if not user:
                 user = authenticate(username=user_srl.data['username'], password=user_srl.data['password'])
                 print(user)
-            try:
-                login(request, user=user)
-                return Response(data={'msg' : 'Logged in','username' : user_srl.data['username'], 'email' :  user_srl.data['email']}, status=status.HTTP_200_OK)
-            except:
+            if user:
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key, 'username' : user_srl.data['username'], 'email' : user_srl.data['email']}, status=status.HTTP_200_OK)
+            else:
                 return Response(data={'error' : 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(data={'error' : 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
@@ -92,10 +90,14 @@ class OAuthRedirect(APIView):
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated, ]
-    authentication_classes = [SansCSRFSessionAuthentication, ]
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return Response(data={"message" : "logged out successfully"}, status=status.HTTP_200_OK)
+    authentication_classes = [TokenAuthentication, ]
+    def post(self, request, *args, **kwargs):
+        try:
+            request.user.auth_token.delete()
+            return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 

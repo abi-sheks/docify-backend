@@ -2,6 +2,7 @@ from rest_framework import generics, mixins, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from docsapp.models.user import Profile
 from django.contrib.auth.models import User
@@ -11,6 +12,7 @@ from django.http import Http404
 
 class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes=[TokenAuthentication]
     queryset = Profile.objects.all()
     serializer_class = UserSerializer
 
@@ -21,6 +23,7 @@ class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAP
     #     return self.create(request, *args, **kwargs)
 class UserByTag(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes=[TokenAuthentication]
     serializer_class = UserSerializer
     def get_queryset(self):
         tag = self.kwargs['tag']
@@ -30,6 +33,7 @@ class UserByTag(generics.ListCreateAPIView):
             raise Http404
 class UserDetail(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes=[TokenAuthentication]
     def get_user(self, slug):
         try:
             return Profile.objects.get(slug=slug)

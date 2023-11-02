@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_elasticsearch_dsl_drf',
     'docsapp.apps.DocsappConfig',
     'django_filters',
+    'rest_framework.authtoken',
     'ypy_websocket',
 ]
 

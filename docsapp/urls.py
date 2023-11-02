@@ -1,7 +1,7 @@
 from django.urls import path, re_path, include
 from docsapp.views.editable import EditableDocumentView, EditableCreationView, EditableUpdationView
 from docsapp.views.user import UserList, UserDetail
-from docsapp.views.tag import TagDetail, TagList, TagsByMember, IndividualTagReadOnly
+from docsapp.views.tag import TagDetail, TagList, IndividualTagReadOnly
 from docsapp.views.auth import RegisterView, LoginView, OAuthRedirect, LogoutView
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.urlpatterns import format_suffix_patterns

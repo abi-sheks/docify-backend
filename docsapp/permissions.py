@@ -2,10 +2,16 @@ from rest_framework import permissions
 from docsapp.models.editable import Editable
 from docsapp.models.tag import Tag
 
-class IsCreatorPermission(permissions.BasePermission):
-    
+class IsCreatorPermission(permissions.BasePermission): 
     def has_object_permission(self, request, view, obj):
-        return obj.creator.user.email == request.user.email
+        return obj.creator.prof_username == request.user.username
+    
+class TagEditPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return obj.creator.prof_username == request.user.username
     
 class IsEditorPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
