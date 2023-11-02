@@ -7,20 +7,11 @@ from django_elasticsearch_dsl_drf.constants import (
     LOOKUP_QUERY_CONTAINS,
 )
 from docsapp.serializers.editable import EditableDocumentSerializer, EditableSerializer
-from rest_framework import mixins
-from rest_framework import generics
-
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from django.contrib.auth.models import User
-from docsapp.models.user import Profile
 from docsapp.models.editable import Editable
-from docsapp.models.tag import Tag
 from docsapp.documents.editable import EditableDocument
 from docsapp.serializers.editable import EditableDocumentSerializer
-from docsapp.permissions import IsCreatorPermission
+from docsapp.permissions import DocMutatePermission
 
 
 
@@ -66,12 +57,12 @@ class EditableCreationView(ListCreateAPIView):
         # for tag in user_tags:
         #     user_docs.append(Editable.objects.filter(read_tags__name=tag.name))
         return user_docs
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     return self.list(request, *args, **kwargs)
 
     
 class EditableUpdationView(RetrieveUpdateDestroyAPIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[IsAuthenticated, DocMutatePermission]
     authentication_classes=[TokenAuthentication]
     lookup_field = 'id'
     queryset = Editable.objects.all()

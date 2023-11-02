@@ -16,8 +16,6 @@ class EditableConsumer(YjsConsumer):
         doc = Y.YDoc()
         init_state = await database_sync_to_async(self.fetch_doc)()
         if init_state != b'':
-            # init_update = Y.encode_state_as_update(doc, init_state_vec)
-            # print(f"The init update is {init_update}")
             Y.apply_update(doc, init_state)
         # fill doc with data from DB here
         doc.observe_after_transaction(self.on_update_event)
@@ -29,8 +27,9 @@ class EditableConsumer(YjsConsumer):
     async def receive(self, text_data=None, bytes_data=None):
         await super(EditableConsumer, self).receive(text_data, bytes_data)
         #Bad solution?
+        print(f"Receiving {bytes_data}")
         curr_db_state = await database_sync_to_async(self.fetch_doc)()
-        if curr_db_state != Y.encode_state_as_update(self.ydoc):
+        if curr_db_state != Y.encode_state_as_update(self.ydoc) and curr_db_state != b'':
             Y.apply_update(self.ydoc, curr_db_state)
         await database_sync_to_async(self.update_doc)(Y.encode_state_as_update(self.ydoc))
     
