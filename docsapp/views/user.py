@@ -3,11 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from django_filters.rest_framework import DjangoFilterBackend
 from docsapp.models.user import Profile
-from django.contrib.auth.models import User
 from docsapp.serializers.user import UserSerializer
-from docsapp.serializers.authuser import AuthUserSerializer
 from django.http import Http404
 
 class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAPIView):
@@ -19,18 +16,6 @@ class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAP
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
     
-    # def post(self, request, *args, **kwargs):
-    #     return self.create(request, *args, **kwargs)
-class UserByTag(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes=[TokenAuthentication]
-    serializer_class = UserSerializer
-    def get_queryset(self):
-        tag = self.kwargs['tag']
-        try:
-            return Profile.objects.filter(read_tags__name=tag, write_tags__name=tag)
-        except Profile.DoesNotExist:
-            raise Http404
 class UserDetail(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes=[TokenAuthentication]
@@ -53,7 +38,6 @@ class UserDetail(APIView):
             srl.save()
             return Response(srl.data)
         return Response(srl.errors, status=status.HTTP_400_BAD_REQUEST)
-    
     def delete(self, request, slug, format=None):
         user = self.get_user(slug)
         user.delete()
