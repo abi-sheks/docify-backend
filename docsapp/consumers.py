@@ -15,12 +15,8 @@ class EditableConsumer(YjsConsumer):
     async def make_ydoc(self) -> Y.YDoc:
         doc = Y.YDoc()
         init_state = await database_sync_to_async(self.fetch_doc)()
-        print(f"The init state is {init_state}")
         if init_state != b'':
-            # init_update = Y.encode_state_as_update(doc, init_state_vec)
-            # print(f"The init update is {init_update}")
             Y.apply_update(doc, init_state)
-        # fill doc with data from DB here
         doc.observe_after_transaction(self.on_update_event)
         return doc
 
@@ -29,10 +25,9 @@ class EditableConsumer(YjsConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         await super(EditableConsumer, self).receive(text_data, bytes_data)
-        print(f"Current state is {Y.encode_state_as_update(self.ydoc)}")
         #Bad solution?
         curr_db_state = await database_sync_to_async(self.fetch_doc)()
-        if curr_db_state != Y.encode_state_as_update(self.ydoc):
+        if curr_db_state != Y.encode_state_as_update(self.ydoc) and curr_db_state != b'':
             Y.apply_update(self.ydoc, curr_db_state)
         await database_sync_to_async(self.update_doc)(Y.encode_state_as_update(self.ydoc))
     
@@ -40,15 +35,11 @@ class EditableConsumer(YjsConsumer):
         update = Y.encode_state_as_update(self.ydoc)
         await database_sync_to_async(self.update_doc)(update)
         await self.group_send_message(create_update_message(update))
-        print(f"The update being applied to db is {Y.encode_state_as_update(self.ydoc)}")
-        print("Happening on disconnect")
         await super().disconnect(code)
 
     def on_update_event(self, event):
         # process event here
         ...
-        # print(event.get_update())
-        # database_sync_to_async(self.update_doc)(event.after_state)
 
     async def doc_update(self, update_wrapper):
         update = update_wrapper["update"]
@@ -62,8 +53,8 @@ class EditableConsumer(YjsConsumer):
             doc.save()
 
     def fetch_doc(self):
-        cont = Editable.objects.get(id=self.room_name).content
-        return cont
+        content = Editable.objects.get(id=self.room_name).content
+        return content
 
 def send_doc_update(room_name, update):
     layer = get_channel_layer()

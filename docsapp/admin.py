@@ -11,7 +11,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ['name', 'users', 'creator', 'slug']
 
 class EditableAdmin(admin.ModelAdmin):
-    fields = ['title', 'slug', 'restricted', 'content', 'creator']
+    fields = ['title', 'slug', 'content', 'creator']
     readonly_fields = ['id',]
 
 
