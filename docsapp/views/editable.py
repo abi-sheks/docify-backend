@@ -12,11 +12,14 @@ from docsapp.models.editable import Editable
 from docsapp.documents.editable import EditableDocument
 from docsapp.serializers.editable import EditableDocumentSerializer
 from docsapp.permissions import DocMutatePermission
+from docsapp.utils import isCreator, isAccessible
 
 
 
 
 class EditableDocumentView(BaseDocumentViewSet):
+    #dont need to filter by restriction or user here for queryset, as filtering happens on frontend.
+    # but security risk? so this view is still unsafe.
     permission_classes=[IsAuthenticated]
     authentication_classes=[TokenAuthentication]
     document = EditableDocument
@@ -49,7 +52,11 @@ class EditableCreationView(ListCreateAPIView):
         user = self.request.user
         # #can just fetch read tags, as by mechanism, write tags are also read tags
         user_docs = Editable.objects.filter(read_tags__users__user=user).distinct()
-        return user_docs
+        user_available_docs : list = []
+        for doc in user_docs:
+            if(isAccessible(user.username , doc)):
+                user_available_docs.append(doc)
+        return user_available_docs
 
     
 class EditableUpdationView(RetrieveUpdateDestroyAPIView):

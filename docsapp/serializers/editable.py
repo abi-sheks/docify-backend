@@ -28,6 +28,6 @@ class EditableSerializer(serializers.ModelSerializer):
     # comments = serializers.StringRelatedField(many=True, required = False)
     class Meta:
         model = Editable
-        fields = ['title', 'id', 'read_tags', 'write_tags','slug', 'creator']
+        fields = ['title', 'id', 'read_tags', 'write_tags','slug', 'creator', 'restricted']
 
 

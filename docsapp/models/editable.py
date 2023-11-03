@@ -13,7 +13,7 @@ class Editable(models.Model):
     content = models.BinaryField(editable=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # creation_time = models.DateTimeField(auto_now_add=True)
-    # restricted = models.BooleanField(default=True)
+    restricted = models.BooleanField(default=False)
     creator = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     read_tags = models.ManyToManyField(Tag, related_name="readable", blank=True)
     write_tags = models.ManyToManyField(Tag, related_name="writeable", blank=True)
