@@ -17,6 +17,7 @@ class Editable(models.Model):
     creator = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     read_tags = models.ManyToManyField(Tag, related_name="readable", blank=True)
     write_tags = models.ManyToManyField(Tag, related_name="writeable", blank=True)
+    accessors = models.ManyToManyField(Profile, related_name="accessibles", blank=True)
     slug = models.SlugField(default='', null = False, validators=[validate_slug])
 
     @property
@@ -25,6 +26,9 @@ class Editable(models.Model):
     @property
     def write_tags_indexing(self):
         return [write_tag.name for write_tag in self.write_tags.all()]
+    @property
+    def accessors_indexing(self):
+        return [accessor.prof_username for accessor in self.accessors.all()]
     @property
     def owner_indexing(self):
         return self.creator.user.username

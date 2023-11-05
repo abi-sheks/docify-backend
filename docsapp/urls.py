@@ -1,5 +1,6 @@
 from django.urls import path
 from docsapp.views.editable import EditableDocumentView, EditableCreationView, EditableUpdationView
+from docsapp.views.comment import CommentListView
 from docsapp.views.user import UserList, UserDetail
 from docsapp.views.tag import TagDetail, TagList
 from docsapp.views.auth import RegisterView, LoginView, LogoutView
@@ -20,6 +21,8 @@ urlpatterns = [
 
     path('tags/', csrf_exempt(TagList.as_view()), name='tags'),
     path('tags/<slug:id>', csrf_exempt(TagDetail.as_view())),
+
+    path('comments/', csrf_exempt(CommentListView.as_view()), name='comments'),
     
     path('auth/login/', csrf_exempt(LoginView.as_view()), name='login'),
     path('auth/register/', csrf_exempt(RegisterView.as_view()), name='register'),

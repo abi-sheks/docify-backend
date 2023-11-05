@@ -10,6 +10,7 @@ class EditableDocument(Document):
     creator = fields.TextField(attr='owner_indexing')
     read_tags = fields.TextField(attr='read_tags_indexing')
     write_tags = fields.TextField(attr='write_tags_indexing')
+    accessors = fields.TextField(attr='accessors_indexing')
     comments = fields.NestedField(properties = {
         'content' : fields.TextField(),
         'lineno' : fields.IntegerField()

@@ -50,13 +50,21 @@ class EditableCreationView(ListCreateAPIView):
     serializer_class = EditableSerializer
     def get_queryset(self):
         user = self.request.user
-        # #can just fetch read tags, as by mechanism, write tags are also read tags
-        user_docs = Editable.objects.filter(read_tags__users__user=user).distinct()
-        user_available_docs : list = []
+        # can just fetch read tags, as by mechanism, write tags are also read tags
+        user_docs = list(Editable.objects.filter(read_tags__users__user=user).distinct())
+        user_accessible_docs = list(Editable.objects.filter(accessors__prof_username=user.username).distinct())
+        user_available_docs = []
         for doc in user_docs:
             if(isAccessible(user.username , doc)):
                 user_available_docs.append(doc)
-        return user_available_docs
+        final_docs = []
+        final_docs.extend(user_available_docs)
+        #performs a union of lists basically
+        for doc in user_accessible_docs:
+            if doc not in user_available_docs:
+                final_docs.append(doc)
+                
+        return final_docs
 
     
 class EditableUpdationView(RetrieveUpdateDestroyAPIView):

@@ -1,5 +1,5 @@
 from django_elasticsearch_dsl import fields, Document
-from docsapp.models import Comment
+from docsapp.models.comment import Comment
 from django_elasticsearch_dsl.registries import registry
 
 @registry.register_document
@@ -14,5 +14,5 @@ class CommentDocument(Document):
 
         fields = [
             'content',
-            'lineno',
+            'comment_id',
         ]
