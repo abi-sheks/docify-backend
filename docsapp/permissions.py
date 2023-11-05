@@ -30,6 +30,7 @@ class DocMutatePermission(permissions.BasePermission):
 
 class CommentsAccessPermission(permissions.BasePermission):
     def has_permission(self, request, view):
+        #get unprotected for now
         if(request.method == 'POST'):
             docId : str = request.data.get('parent_doc')
             print(docId)

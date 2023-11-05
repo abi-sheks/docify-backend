@@ -9,14 +9,8 @@ from docsapp.permissions import CommentsAccessPermission
 
 class CommentListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated, 
-                        #   CommentsAccessPermission
+                          CommentsAccessPermission
                           ]
     authentication_classes=[TokenAuthentication]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    # def get_queryset(self):
-    #     docID = self.request.data.get('parent_doc')
-    #     try:
-    #         return Comment.objects.filter(parent_doc__id=docID)
-    #     except Comment.DoesNotExist:
-    #         return None
