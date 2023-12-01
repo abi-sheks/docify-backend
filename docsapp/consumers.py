@@ -15,8 +15,8 @@ class EditableConsumer(YjsConsumer):
     async def make_ydoc(self) -> Y.YDoc:
         doc = Y.YDoc()
         init_state = await database_sync_to_async(self.fetch_doc)()
-        if init_state != b'':
-            Y.apply_update(doc, init_state)
+        if init_state.content != b'':
+            Y.apply_update(doc, init_state.content)
         doc.observe_after_transaction(self.on_update_event)
         return doc
 
@@ -27,12 +27,21 @@ class EditableConsumer(YjsConsumer):
         await super(EditableConsumer, self).receive(text_data, bytes_data)
         #Bad solution?
         curr_db_state = await database_sync_to_async(self.fetch_doc)()
-        if curr_db_state != Y.encode_state_as_update(self.ydoc) and curr_db_state != b'':
-            Y.apply_update(self.ydoc, curr_db_state)
+        if curr_db_state.content != Y.encode_state_as_update(self.ydoc) and curr_db_state.content != b'':
+            Y.apply_update(self.ydoc, curr_db_state.content)
+        content_as_text = self.ydoc.get_text("quill").__str__()
+        curr_db_state.contenttext = content_as_text
+        await database_sync_to_async(curr_db_state.save)();
         await database_sync_to_async(self.update_doc)(Y.encode_state_as_update(self.ydoc))
     
     async def disconnect(self, code):
         update = Y.encode_state_as_update(self.ydoc)
+        content_as_text = self.ydoc.get_text("quill").__str__()
+        print(content_as_text)
+        #primitive solution for es searching
+        doc = await database_sync_to_async(self.fetch_doc)();
+        doc.contenttext = content_as_text
+        await database_sync_to_async(doc.save)();
         await database_sync_to_async(self.update_doc)(update)
         await self.group_send_message(create_update_message(update))
         await super().disconnect(code)
@@ -53,7 +62,7 @@ class EditableConsumer(YjsConsumer):
             doc.save()
 
     def fetch_doc(self):
-        content = Editable.objects.get(id=self.room_name).content
+        content = Editable.objects.get(id=self.room_name)
         return content
 
 def send_doc_update(room_name, update):

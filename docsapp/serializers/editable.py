@@ -14,6 +14,7 @@ class EditableDocumentSerializer(DocumentSerializer):
             # 'creation_time',
             # 'owner',
             # 'comments',
+            'contenttext',
             'title',
             'id',
             'read_tags',

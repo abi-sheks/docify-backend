@@ -51,7 +51,7 @@ def isCreator(uname : str , obj) -> bool:
 
 def isAccessor(uname : str, doc) -> bool:
     accessor_names = [accessor.prof_username for accessor in doc.accessors.all()]
-    return accessor_names.contains(uname)
+    return uname in accessor_names
 
 def isAccessible(uname : str, doc) -> bool:
     is_restricted_and_accessor : bool = doc.restricted and (isCreator(uname, doc) or isAccessor(uname, doc))

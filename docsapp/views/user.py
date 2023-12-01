@@ -9,7 +9,6 @@ from django.http import Http404
 
 class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes=[TokenAuthentication]
     queryset = Profile.objects.all()
     serializer_class = UserSerializer
 
@@ -18,7 +17,6 @@ class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAP
     
 class UserDetail(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes=[TokenAuthentication]
     def get_user(self, slug):
         try:
             return Profile.objects.get(slug=slug)

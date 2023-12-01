@@ -3,7 +3,7 @@ from docsapp.views.editable import EditableDocumentView, EditableCreationView, E
 from docsapp.views.comment import CommentListView
 from docsapp.views.user import UserList, UserDetail
 from docsapp.views.tag import TagDetail, TagList
-from docsapp.views.auth import RegisterView, LoginView, LogoutView
+from docsapp.views.auth import RegisterView, LoginView, LogoutView, OAuthRedirect, WhoAmI
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import consumers
@@ -25,8 +25,10 @@ urlpatterns = [
     path('comments/', csrf_exempt(CommentListView.as_view()), name='comments'),
     
     path('auth/login/', csrf_exempt(LoginView.as_view()), name='login'),
+    path('auth/whoami/', csrf_exempt(WhoAmI.as_view()), name="whoami"),
+    path('oauth/', csrf_exempt(OAuthRedirect.as_view()), name='oauth'),
     path('auth/register/', csrf_exempt(RegisterView.as_view()), name='register'),
-    path('logout/', csrf_exempt(LogoutView.as_view()), name='logout'),
+    path('auth/logout/', csrf_exempt(LogoutView.as_view()), name='logout'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

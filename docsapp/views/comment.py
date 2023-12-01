@@ -11,6 +11,5 @@ class CommentListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated, 
                           CommentsAccessPermission
                           ]
-    authentication_classes=[TokenAuthentication]
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer

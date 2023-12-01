@@ -11,6 +11,8 @@ import datetime
 class Editable(models.Model):
     title = models.CharField(max_length=30, blank=False)
     content = models.BinaryField(editable=True)
+    #for elasticsearch
+    contenttext = models.CharField(editable=True, blank=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # creation_time = models.DateTimeField(auto_now_add=True)
     restricted = models.BooleanField(default=False)

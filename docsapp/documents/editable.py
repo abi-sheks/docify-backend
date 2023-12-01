@@ -23,6 +23,7 @@ class EditableDocument(Document):
 
         fields = [
             'title',
+            'contenttext',
             # 'content',
             # 'creation_time',
             # 'restricted',

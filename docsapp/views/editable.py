@@ -21,7 +21,6 @@ class EditableDocumentView(BaseDocumentViewSet):
     #dont need to filter by restriction or user here for queryset, as filtering happens on frontend.
     # but security risk? so this view is still unsafe.
     permission_classes=[IsAuthenticated]
-    authentication_classes=[TokenAuthentication]
     document = EditableDocument
     serializer_class = EditableDocumentSerializer
     lookup_field = 'id'
@@ -31,6 +30,7 @@ class EditableDocumentView(BaseDocumentViewSet):
     ]
     search_fields = {
         'title',
+        'contenttext',
         'id',
         'slug',
     }
@@ -42,11 +42,17 @@ class EditableDocumentView(BaseDocumentViewSet):
             LOOKUP_QUERY_CONTAINS,
         ]
         },
+        'contenttext' : {
+            'field' : 'contenttext',
+            'lookups' : [
+                LOOKUP_FILTER_PREFIX,
+                LOOKUP_QUERY_CONTAINS,
+            ]
+        },
         'slug' : 'slug.raw',
     }
 class EditableCreationView(ListCreateAPIView):
     permission_classes=[IsAuthenticated]
-    authentication_classes=[TokenAuthentication]
     serializer_class = EditableSerializer
     def get_queryset(self):
         user = self.request.user
@@ -69,7 +75,6 @@ class EditableCreationView(ListCreateAPIView):
     
 class EditableUpdationView(RetrieveUpdateDestroyAPIView):
     permission_classes=[IsAuthenticated, DocMutatePermission]
-    authentication_classes=[TokenAuthentication]
     lookup_field = 'id'
     queryset = Editable.objects.all()
     serializer_class = EditableSerializer

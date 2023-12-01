@@ -6,7 +6,6 @@ from docsapp.models.user import Profile
 from docsapp.models.editable import Editable
 from docsapp.models.comment import Comment
 from docsapp.utils import isAccessible, isReader
-import uuid
 
 class CommentDocumentSerializer(DocumentSerializer):
     class Meta:
