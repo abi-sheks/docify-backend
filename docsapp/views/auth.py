@@ -12,6 +12,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.models import User, AnonymousUser
 from docsapp.serializers.authuser import AuthUserSerializer
+from docsapp.authentication import CsrfExemptSessionAuthentication
 
 
 def auth(username, email):
@@ -26,6 +27,7 @@ def auth(username, email):
     
 class WhoAmI(APIView):
     permission_classes=[AllowAny, ]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             print(f"The user is {request.user}")
@@ -34,6 +36,7 @@ class WhoAmI(APIView):
             return Response(data={"status" : "error"}, status=status.HTTP_401_UNAUTHORIZED)
 class RegisterView(APIView):
     permission_classes = [AllowAny, ]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     def post(self, request, *args, **kwargs):
         user_serializer = AuthUserSerializer(data=request.data)
         if user_serializer.is_valid():
@@ -46,25 +49,14 @@ class RegisterView(APIView):
         
 class LoginView(APIView):
     permission_classes = [AllowAny, ]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     def get(self, request, *args, **kwargs):
         channeli_uri = f"{AUTH_URI}?client_id={CHANNELI_CLIENT_ID}&redirect_uri={REDIRECT_URI}"
         return redirect(channeli_uri)
-    # def post(self, request, *args, **kwargs):
-    #     user_srl = AuthUserSerializer(data=request.data)
-    #     if user_srl.is_valid():
-    #         user = None
-    #         if not user:
-    #             user = authenticate(username=user_srl.data['username'], password=user_srl.data['password'])
-    #         if user:
-    #             token, _ = Token.objects.get_or_create(user=user)
-    #             return Response({'token': token.key, 'username' : user_srl.data['username'], 'email' : user_srl.data['email']}, status=status.HTTP_200_OK)
-    #         else:
-    #             return Response(data={'error' : 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
-    #     else:
-    #         return Response(data={'error' : 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 class OAuthRedirect(APIView):
     permission_classes = [AllowAny, ]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     def get(self, request, *args, **kwargs):
         auth_code = request.query_params.get('code')
         token_data = requests.post('https://channeli.in/open_auth/token/', data={
@@ -100,9 +92,10 @@ class OAuthRedirect(APIView):
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated, ]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     def get(self, request, *args, **kwargs):
         try:
-            request.user.auth_token.delete()
+            logout(request)
             return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

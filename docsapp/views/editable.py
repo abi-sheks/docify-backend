@@ -13,6 +13,8 @@ from docsapp.documents.editable import EditableDocument
 from docsapp.serializers.editable import EditableDocumentSerializer
 from docsapp.permissions import DocMutatePermission
 from docsapp.utils import isCreator, isAccessible
+from docsapp.authentication import CsrfExemptSessionAuthentication
+
 
 
 
@@ -21,6 +23,7 @@ class EditableDocumentView(BaseDocumentViewSet):
     #dont need to filter by restriction or user here for queryset, as filtering happens on frontend.
     # but security risk? so this view is still unsafe.
     permission_classes=[IsAuthenticated]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     document = EditableDocument
     serializer_class = EditableDocumentSerializer
     lookup_field = 'id'
@@ -53,6 +56,7 @@ class EditableDocumentView(BaseDocumentViewSet):
     }
 class EditableCreationView(ListCreateAPIView):
     permission_classes=[IsAuthenticated]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     serializer_class = EditableSerializer
     def get_queryset(self):
         user = self.request.user
@@ -75,6 +79,7 @@ class EditableCreationView(ListCreateAPIView):
     
 class EditableUpdationView(RetrieveUpdateDestroyAPIView):
     permission_classes=[IsAuthenticated, DocMutatePermission]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     lookup_field = 'id'
     queryset = Editable.objects.all()
     serializer_class = EditableSerializer

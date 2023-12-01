@@ -6,9 +6,12 @@ from rest_framework.authentication import TokenAuthentication
 from docsapp.models.user import Profile
 from docsapp.serializers.user import UserSerializer
 from django.http import Http404
+from docsapp.authentication import CsrfExemptSessionAuthentication
+
 
 class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     queryset = Profile.objects.all()
     serializer_class = UserSerializer
 
@@ -17,6 +20,7 @@ class UserList(mixins.ListModelMixin,mixins.CreateModelMixin, generics.GenericAP
     
 class UserDetail(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes=[CsrfExemptSessionAuthentication]
     def get_user(self, slug):
         try:
             return Profile.objects.get(slug=slug)
